@@ -1,0 +1,180 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../dashboard-layout/dashboard-layout.html">
+<link rel="import" href="../dashboard-calendar-behavior/dashboard-calendar-behavior.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <dashboard-calendar-month></dashboard-calendar-month>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="dashboard-calendar-month">
+  <template>
+    <style>
+      :host {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--height-8);
+        @apply(--width-8);
+        @apply(--buffer);
+        text-align: center;
+        --cell-length: 34px;
+        --inner-length: calc(var(--cell-length) * 7 / 8);
+      }
+
+      :host > div {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
+
+      :host > div:not(:last-child) {
+        height: calc(var(--cell-length) / 2);
+      }
+
+      #dayLabels > div {
+        width: var(--cell-length);
+      }
+
+      #days {
+        @apply(--layout-wrap);
+      }
+
+      #days > div {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+        width: var(--cell-length);
+        height: var(--cell-length);
+      }
+
+      #days > div > div {
+        line-height: var(--inner-length);
+        width: var(--inner-length);
+        height: var(--inner-length);
+      }
+
+      div[today] {
+        @apply(--round);
+        color: var(--background-color, white);
+        background-color: var(--foreground-color, black);
+      }
+
+      .prev, .next {
+        opacity: 0.25;
+      }
+    </style>
+    <div>[[_monthName(month)]] [[year]]</div>
+    <div id="dayLabels">
+      <template is="dom-repeat" items="[[_weekDayNames]]">
+        <div>[[_shortenDay(item, 3)]]</div>
+      </template>
+    </div>
+    <div id="days">
+      <template is="dom-repeat" items="[[_prevDays(year, month)]]">
+        <div class="prev">[[item]]</div>
+      </template>
+      <template is="dom-repeat" items="[[_days(year, month)]]">
+        <div>
+          <div today$="[[_isEqual(item, day)]]">[[item]]</div>
+        </div>
+      </template>
+      <template is="dom-repeat" items="[[_nextDays(year, month)]]">
+        <div class="next">[[item]]</div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'dashboard-calendar-month',
+
+      behaviors: [Dashboard.CalendarBehavior],
+
+      properties: {
+
+        firstOffset: {
+          computed: '_firstOffset(year, month)'
+        }
+      },
+
+      // Element Lifecycle
+
+      ready: function() {
+        // `ready` is called after all elements have been configured, but
+        // propagates bottom-up. This element's children are ready, but parents
+        // are not.
+        //
+        // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+      },
+
+      attached: function() {
+        // `attached` fires once the element and its parents have been inserted
+        // into a document.
+        //
+        // This is a good place to perform any work related to your element's
+        // visual state or active behavior (measuring sizes, beginning animations,
+        // loading resources, etc).
+      },
+
+      detached: function() {
+        // The analog to `attached`, `detached` fires when the element has been
+        // removed from a document.
+        //
+        // Use this to clean up anything you did in `attached`.
+      },
+
+      // Element Behavior
+
+      _shortenDay: function(day, length) {
+        return day.slice(0, length);
+      },
+
+      _firstOffset: function(year, month) {
+        return (new Date(year, month, 0).getDay() + 1) % 7 - 1;
+      },
+
+      _prevDays: function(year, month) {
+        var monthLength = new Date(year, month, 0).getDate();
+
+        return this._getDays(monthLength - this.firstOffset, monthLength);
+      },
+
+      _days: function(year, month) {
+        return this._getDays(1, new Date(year, month + 1, 0).getDate());
+      },
+
+      _nextDays: function(year, month) {
+        return this._getDays(1, 41 - (new Date(year, month + 1, 0).getDate() + this.firstOffset));
+      },
+
+      _getDays: function(start, stop) {
+        var days = [];
+
+        for (var i = start; i <= stop; i++)
+          days.push(i);
+
+        return days;
+      },
+
+      _isEqual(a, b) {
+        return a === b;
+      }
+    });
+  </script>
+</dom-module>

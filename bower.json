@@ -1,0 +1,30 @@
+{
+  "name": "dashboard-calendar-month",
+  "version": "0.0.1",
+  "authors": [
+    "Barrett K. Harber <barrett.harber@gmail.com>"
+  ],
+  "description": "A dashboard calendar.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "seed"
+  ],
+  "main": "dashboard-calendar-month.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/DashboardElements/dashboard-calendar-month",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0",
+    "dashboard-calendar-behavior": "DashboardElements/dashboard-calendar-behavior",
+    "dashboard-layout": "DashboardElements/dashboard-layout",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.1"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^3.4.0"
+  }
+}
