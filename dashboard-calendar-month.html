@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dashboard-calendar-behavior/dashboard-calendar-behavior.html">
 
 <!--
-An element providing a solution to no problem in particular.
+Displays a calendar month.
 
 Example:
 
@@ -88,7 +88,7 @@ Example:
       <template is="dom-repeat" items="[[_prevDays(year, month)]]">
         <div class="prev">[[item]]</div>
       </template>
-      <template is="dom-repeat" items="[[_days(year, month)]]">
+      <template is="dom-repeat" items="[[_currDays(year, month)]]">
         <div>
           <div today$="[[_isEqual(item, day)]]">[[item]]</div>
         </div>
@@ -106,63 +106,88 @@ Example:
       behaviors: [Dashboard.CalendarBehavior],
 
       properties: {
-
-        firstOffset: {
-          computed: '_firstOffset(year, month)'
+        /**
+         * The weekday offset for the first day of the month
+         *
+         * @private
+         */
+        _firstOffset: {
+          computed: '_calcFirstOffset(year, month)'
         }
-      },
-
-      // Element Lifecycle
-
-      ready: function() {
-        // `ready` is called after all elements have been configured, but
-        // propagates bottom-up. This element's children are ready, but parents
-        // are not.
-        //
-        // This is the point where you should make modifications to the DOM (when
-        // necessary), or kick off any processes the element wants to perform.
-      },
-
-      attached: function() {
-        // `attached` fires once the element and its parents have been inserted
-        // into a document.
-        //
-        // This is a good place to perform any work related to your element's
-        // visual state or active behavior (measuring sizes, beginning animations,
-        // loading resources, etc).
-      },
-
-      detached: function() {
-        // The analog to `attached`, `detached` fires when the element has been
-        // removed from a document.
-        //
-        // Use this to clean up anything you did in `attached`.
       },
 
       // Element Behavior
 
+      /**
+       * Abbreviates the day name to the specified length
+       *
+       * @param day {number}
+       * @param length {number}
+       * @returns {string}
+       * @private
+       */
       _shortenDay: function(day, length) {
         return day.slice(0, length);
       },
 
-      _firstOffset: function(year, month) {
+      /**
+       * Calculates the offset of the first day of the month
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {number}
+       * @private
+       */
+      _calcFirstOffset: function(year, month) {
         return (new Date(year, month, 0).getDay() + 1) % 7 - 1;
       },
 
+      /**
+       * Generates days of the preceeding month e.g. `[29, 30, 31]`
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {Array<number>}
+       * @private
+       */
       _prevDays: function(year, month) {
         var monthLength = new Date(year, month, 0).getDate();
 
-        return this._getDays(monthLength - this.firstOffset, monthLength);
+        return this._getDays(monthLength - this._firstOffset, monthLength);
       },
 
-      _days: function(year, month) {
+      /**
+       * Generates days of the current month
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {Array<number>}
+       * @private
+       */
+      _currDays: function(year, month) {
         return this._getDays(1, new Date(year, month + 1, 0).getDate());
       },
 
+      /**
+       * Generates days of the proceeding month e.g. `[1, 2, 3, 4, 5]`
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {Array<number>}
+       * @private
+       */
       _nextDays: function(year, month) {
-        return this._getDays(1, 41 - (new Date(year, month + 1, 0).getDate() + this.firstOffset));
+        return this._getDays(1, 41 - (new Date(year, month + 1, 0).getDate() + this._firstOffset));
       },
 
+      /**
+       * Generates an array of numbered days e.g. `[1, 2, 3, ..., 29, 30, 31]`
+       *
+       * @param start {number}
+       * @param stop {number}
+       * @returns {Array}
+       * @private
+       */
       _getDays: function(start, stop) {
         var days = [];
 
@@ -172,6 +197,14 @@ Example:
         return days;
       },
 
+      /**
+       * A utility function to compare two values
+       *
+       * @param a {*}
+       * @param b {*}
+       * @returns {boolean}
+       * @private
+       */
       _isEqual(a, b) {
         return a === b;
       }
