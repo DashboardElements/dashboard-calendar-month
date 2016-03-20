@@ -1,0 +1,213 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../dashboard-layout/dashboard-layout.html">
+<link rel="import" href="../dashboard-calendar-behavior/dashboard-calendar-behavior.html">
+
+<!--
+Displays a calendar month.
+
+Example:
+
+    <dashboard-calendar-month></dashboard-calendar-month>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="dashboard-calendar-month">
+  <template>
+    <style>
+      :host {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--height-8);
+        @apply(--width-8);
+        @apply(--buffer);
+        text-align: center;
+        --cell-length: 34px;
+        --inner-length: calc(var(--cell-length) * 7 / 8);
+      }
+
+      :host > div {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
+
+      :host > div:not(:last-child) {
+        height: calc(var(--cell-length) / 2);
+      }
+
+      #dayLabels > div {
+        width: var(--cell-length);
+      }
+
+      #days {
+        @apply(--layout-wrap);
+      }
+
+      #days > div {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+        width: var(--cell-length);
+        height: var(--cell-length);
+      }
+
+      #days > div > div {
+        line-height: var(--inner-length);
+        width: var(--inner-length);
+        height: var(--inner-length);
+      }
+
+      div[today] {
+        @apply(--round);
+        color: var(--background-color, white);
+        background-color: var(--foreground-color, black);
+      }
+
+      .prev, .next {
+        opacity: 0.25;
+      }
+    </style>
+    <div>[[_monthName(month)]] [[year]]</div>
+    <div id="dayLabels">
+      <template is="dom-repeat" items="[[_weekDayNames]]">
+        <div>[[_shortenDay(item, 3)]]</div>
+      </template>
+    </div>
+    <div id="days">
+      <template is="dom-repeat" items="[[_prevDays(year, month)]]">
+        <div class="prev">[[item]]</div>
+      </template>
+      <template is="dom-repeat" items="[[_currDays(year, month)]]">
+        <div>
+          <div today$="[[_isEqual(item, day)]]">[[item]]</div>
+        </div>
+      </template>
+      <template is="dom-repeat" items="[[_nextDays(year, month)]]">
+        <div class="next">[[item]]</div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'dashboard-calendar-month',
+
+      behaviors: [Dashboard.CalendarBehavior],
+
+      properties: {
+        /**
+         * The weekday offset for the first day of the month
+         *
+         * @private
+         */
+        _firstOffset: {
+          computed: '_calcFirstOffset(year, month)'
+        }
+      },
+
+      // Element Behavior
+
+      /**
+       * Abbreviates the day name to the specified length
+       *
+       * @param day {number}
+       * @param length {number}
+       * @returns {string}
+       * @private
+       */
+      _shortenDay: function(day, length) {
+        return day.slice(0, length);
+      },
+
+      /**
+       * Calculates the offset of the first day of the month
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {number}
+       * @private
+       */
+      _calcFirstOffset: function(year, month) {
+        return (new Date(year, month, 0).getDay() + 1) % 7 - 1;
+      },
+
+      /**
+       * Generates days of the preceeding month e.g. `[29, 30, 31]`
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {Array<number>}
+       * @private
+       */
+      _prevDays: function(year, month) {
+        var monthLength = new Date(year, month, 0).getDate();
+
+        return this._getDays(monthLength - this._firstOffset, monthLength);
+      },
+
+      /**
+       * Generates days of the current month
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {Array<number>}
+       * @private
+       */
+      _currDays: function(year, month) {
+        return this._getDays(1, new Date(year, month + 1, 0).getDate());
+      },
+
+      /**
+       * Generates days of the proceeding month e.g. `[1, 2, 3, 4, 5]`
+       *
+       * @param year {number}
+       * @param month {number}
+       * @returns {Array<number>}
+       * @private
+       */
+      _nextDays: function(year, month) {
+        return this._getDays(1, 41 - (new Date(year, month + 1, 0).getDate() + this._firstOffset));
+      },
+
+      /**
+       * Generates an array of numbered days e.g. `[1, 2, 3, ..., 29, 30, 31]`
+       *
+       * @param start {number}
+       * @param stop {number}
+       * @returns {Array}
+       * @private
+       */
+      _getDays: function(start, stop) {
+        var days = [];
+
+        for (var i = start; i <= stop; i++)
+          days.push(i);
+
+        return days;
+      },
+
+      /**
+       * A utility function to compare two values
+       *
+       * @param a {*}
+       * @param b {*}
+       * @returns {boolean}
+       * @private
+       */
+      _isEqual(a, b) {
+        return a === b;
+      }
+    });
+  </script>
+</dom-module>
